@@ -41,7 +41,7 @@ const Player = () => {
 
   return (
     <div className='h-screen flex flex-col items-center justify-center'>
-      <img src={back_arrow_icon} onClick={()=>{navigate(-2)}} alt="Back" className='absolute top-2 left-2 w-10 cursor-pointer' />
+      <img src={back_arrow_icon} onClick={()=>{navigate(-1)}} alt="Back" className='absolute top-2 left-2 w-10 cursor-pointer' />
       <iframe src={`https://www.youtube.com/embed/${apiData?.key}`} width='90%' height='90%' title='trailer' frameBorder='0' allowFullScreen
       className='rounded-sm'></iframe>
       <div className='flex items-center justify-between w-[90%]'>

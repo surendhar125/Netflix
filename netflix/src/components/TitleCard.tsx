@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import card_data from '../assets/cards/Cards_data';
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
 import axios, { AxiosResponse } from 'axios';
 import { Link } from 'react-router-dom';
@@ -88,13 +87,13 @@ const TitleCard = ({position, title, category, page}: Props) => {
       <h1 className="mb-4 text-2xl text-white font-bold">{title ? title : "Popular on Netflix"}</h1>
 
       {/* Scroll Left Button */}
-      <button className="cursor-pointer absolute left-2 top-[50%] z-10 bg-black/60 text-white p-2 rounded-full hover:bg-white/20 transition"
+      <button className="cursor-pointer hidden md:flex absolute left-2 top-[50%] z-10 bg-black/60 text-white p-2 rounded-full hover:bg-white/20 transition"
         onClick={() => scroll('left')}>
         <FaAngleLeft size={24} />
       </button>
 
       {/* Scroll Right Button */}
-      <button className="cursor-pointer absolute right-2 top-[50%] z-10 bg-black/60 text-white p-2 rounded-full hover:bg-white/20 transition"
+      <button className="cursor-pointer hidden md:flex absolute right-2 top-[50%] z-10 bg-black/60 text-white p-2 rounded-full hover:bg-white/20 transition"
         onClick={() => scroll('right')} >
         <FaAngleRight size={24} />
       </button>
@@ -103,12 +102,14 @@ const TitleCard = ({position, title, category, page}: Props) => {
       <div ref={scrollRef} className="overflow-x-auto scrollbar-hide scroll-smooth snap-x snap-mandatory focus:outline-none">
         <div className="flex gap-6 min-w-max pb-4">
           {apiData.map((card, index) => (
-            <Link to={`/player/${card.id}`} key={index} className="bg-[#141414] rounded-sm overflow-hidden shadow-lg transition-transform hover:scale-105 cursor-pointer min-w-[240px] relative">
-              <img src={`https://image.tmdb.org/t/p/w500/${card.backdrop_path}`} alt={card.title} className="w-full h-[160px] object-cover  "/>
-              <h2 className="absolute bottom-0 text-white text-sm font-semibold backdrop-blur-3xl w-full bg-black/60 p-2">
-                {card.title}
-              </h2>
-            </Link>
+            <Link to={`/player/${card.id}`} key={index} className="bg-[#141414] rounded-sm overflow-hidden shadow-md transition-transform duration-300 hover:scale-105 cursor-pointer w-[150px] md:w-[240px] relative">
+            <img src={`https://image.tmdb.org/t/p/w500/${card.backdrop_path}`} alt={card.title} 
+              className="w-full object-cover object-center"/>
+            <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/80 to-transparent text-white p-2">
+              <h2 className="text-sm font-semibold truncate">{card.title}</h2>
+            </div>
+          </Link>
+          
           ))}
         </div>
       </div>
