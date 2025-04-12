@@ -1,24 +1,24 @@
-import NavBar from "../../components/NavBar"
-import Footer from "../../components/Footer"
-import TvShowsList from "../../components/TvShowsList"
 import { useState } from "react"
-import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io"
+import Footer from "../../components/Footer"
+import MoviesList from "../../components/MoviesList"
+import NavBar from "../../components/NavBar"
+import TvShowsList from "../../components/TvShowsList"
+import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 
-const TvShows = () => {
-    const [page, setPage] = useState(1);
+const Children = () => {
+   const [page, setPage] = useState(1);
+    
+    const nextPage = () => setPage(prev => prev + 2);
+    const prevPage = () => setPage(prev => (prev > 1 ? prev - 2 : 1));
   
-    const nextPage = () => setPage(prev => prev + 1);
-    const prevPage = () => setPage(prev => (prev > 1 ? prev - 1 : 1));
-
   return (
     <div>
       <NavBar/>
       <div >
-        <TvShowsList category="popular" title="Popular" no={1} page={page} />
-        <TvShowsList category="top_rated" title="Top Rated" page={page} />
-        <TvShowsList category="on_the_air" title="On the Air" page={page} />
-        <TvShowsList category="airing_today" title="Airing Today" page={page} />
-
+        <MoviesList children={true} no={1} page={page}/>
+        <MoviesList children={true} page={page+1} title="Top Rated"/>
+        <TvShowsList children={true} page={page}/>
+        <TvShowsList children={true} page={page+1} title="Top Rated"/>
 
 
       </div>
@@ -37,12 +37,10 @@ const TvShows = () => {
             <IoIosArrowForward/>
           </button>
         </div>
-
       <Footer/>
-      
     </div> 
 
   )
 }
 
-export default TvShows
+export default Children

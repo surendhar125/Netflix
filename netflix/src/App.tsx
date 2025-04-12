@@ -10,6 +10,9 @@ import { useEffect } from 'react'
 import { auth } from './firebase'
 import { ToastContainer } from 'react-toastify'
 import TvShows from './pages/TvShows/TvShows'
+import Movies from './pages/Movies/Movies'
+import ByLanguage from './pages/ByLanguage/ByLanguage'
+import Children from './pages/Children/Children'
 
 function App() {
 
@@ -38,6 +41,9 @@ function App() {
       <Route path="/login" element={<Login/>} />
       <Route path="/player/:id" element={<Player/>} />
       <Route path="/tvshows" element={<TvShows/>} />
+      <Route path="/movies" element={<Movies/>} />
+      <Route path="/language" element={<ByLanguage/>} />
+      <Route path="/children" element={<Children/>} />
       <Route path="*" element={<NotFound/>} />
 
     </Routes>

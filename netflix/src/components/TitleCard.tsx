@@ -24,11 +24,13 @@ interface Props{
   position?: string | null;
   title?: string;
   category: string;
-  page?: number;
+  no?: number;
+  
 }
-const TitleCard = ({position, title, category, page}: Props) => {
+const TitleCard = ({position, title, category, no}: Props) => {
 
   const [apiData, setApiData]=useState<Movie[]>([]);
+  const [bannerShow, setBannerShow] = useState<Movie | null>(null);
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const scrollAmount = 300;
@@ -37,7 +39,7 @@ const TitleCard = ({position, title, category, page}: Props) => {
   const fetchNowPlayingMovies = () => {
     axios
       .get<MovieResponse>(
-        `https://api.themoviedb.org/3/movie/${category}?language=en-US&page=${page?? 1}`,
+        `https://api.themoviedb.org/3/movie/${category}?language=en-US&page=1`,
         {
           headers: {
             accept: 'application/json',
@@ -48,6 +50,8 @@ const TitleCard = ({position, title, category, page}: Props) => {
       )
       .then((response: AxiosResponse<MovieResponse>) => {
         setApiData(response.data.results); // Movie list
+        setBannerShow(response.data.results[5]); // Set the first show as the banner
+
       })
       .catch((error) => {
         console.error('Error fetching movies:', error);
@@ -83,6 +87,37 @@ const TitleCard = ({position, title, category, page}: Props) => {
   
 
   return (
+    <>
+    {no===1 &&bannerShow && (
+        <div
+          className="relative w-full h-[80vh] bg-cover bg-center flex items-end"
+          style={{
+            backgroundImage: `url(https://image.tmdb.org/t/p/original${bannerShow.backdrop_path})`,
+          }}
+        >
+          <div className="bg-gradient-to-t from-black/80 to-transparent absolute w-full h-full"></div>
+
+          <div className="relative z-10 p-8 text-white max-w-3xl">
+            <h1 className="text-5xl font-bold mb-4">{bannerShow.title}</h1>
+            <p className="text-lg mb-6 line-clamp-3">{bannerShow.overview}</p>
+
+            <div className="flex gap-4">
+              <Link
+                to={`/player/${bannerShow.id}`}
+                className="bg-white text-black px-6 py-2 rounded font-semibold hover:bg-gray-300 transition"
+              >
+                ▶ Play
+              </Link>
+              <Link
+                to={`/info/${bannerShow.id}`}
+                className="bg-gray-500/70 text-white px-6 py-2 rounded font-semibold hover:bg-gray-700 transition"
+              >
+                ℹ More Info
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     <div className= {`${position} px-6 relative`}> 
       <h1 className="mb-4 text-2xl text-white font-bold">{title ? title : "Popular on Netflix"}</h1>
 
@@ -115,6 +150,7 @@ const TitleCard = ({position, title, category, page}: Props) => {
       </div>
 
     </div>
+    </>
   );
 };
 

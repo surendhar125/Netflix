@@ -1,20 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
 import { Link } from 'react-router-dom';
-import { fetchTvShows, fetchTvShowsByLanguage, fetchTvShowsChildren } from '../services/tmdbService';
-import { FaPlay } from 'react-icons/fa';
-import { MdInfoOutline } from 'react-icons/md';
+import { FaPlay } from "react-icons/fa";
+import { MdInfoOutline } from "react-icons/md";
+import { fetchMovies, fetchMoviesByGenre, fetchMoviesByLanguage } from '../services/tmdbService';
 
-interface TVShow {
+type Movie = {
   id: number;
-  name: string;
+  title: string;
   overview: string;
+  release_date: string;
   backdrop_path: string;
-  poster_path: string;
-  vote_average: number;
-  first_air_date: string;
-  [key: string]: any;
-}
+};
 
 interface Props {
   title?: string;
@@ -25,37 +22,38 @@ interface Props {
   page?: number;
 }
 
-const TvShowsList = ({ title, category, no, lang, children, page}: Props) => {
-  const [apiData, setApiData] = useState<TVShow[]>([]);
-  const [bannerShow, setBannerShow] = useState<TVShow | null>(null);
+const TitleCard = ({ title, category, no, lang, children, page }: Props) => {
+  const [apiData, setApiData] = useState<Movie[]>([]);
+  const [bannerShow, setBannerShow] = useState<Movie | null>(null);
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const scrollAmount = 300;
-  
-  // API Fetch
-  const fetchData = async () => {
-    
+
+  const fetchNowPlayingMovies = async () => {
     try {
       let data;
       if (lang) {
-        data = await fetchTvShowsByLanguage(lang, page? page: 1);
+        data = await fetchMoviesByLanguage(lang, page? page:1);
       } else if (category) {
-        data = await fetchTvShows(category, (page? page: 1));
+        data = await fetchMovies(category, page? page: 1);
       } else if(children){
-        data = await fetchTvShowsChildren(page? page: 1);
-      }else {
+        data = await fetchMoviesByGenre(page? page: 1);
+      }
+      else {
         console.warn("No category or language provided to TitleCard.");
         return;
       }
-
-      setApiData(data.results);
-      setBannerShow(data.results[5]);
+  
+       setApiData(data.results || []);
+      if (data.results && data.results.length > 5) {
+        setBannerShow(data.results[4]);
+      }
     } catch (error) {
-      console.error('Error fetching TV shows:', error);
+      console.error('Error fetching movies:', error);
     }
   };
-  
-  // Scroll with arrows
+
+  // Scroll left/right
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
       scrollRef.current.scrollBy({
@@ -65,7 +63,7 @@ const TvShowsList = ({ title, category, no, lang, children, page}: Props) => {
     }
   };
 
-  // Scroll with mouse wheel
+  // Wheel scroll
   const handleWheel = (e: WheelEvent) => {
     if (scrollRef.current) {
       e.preventDefault();
@@ -77,28 +75,33 @@ const TvShowsList = ({ title, category, no, lang, children, page}: Props) => {
   };
 
   useEffect(() => {
-    fetchData();
-    scrollRef.current?.addEventListener('wheel', handleWheel);
-  }, [lang, category, page]);
+    fetchNowPlayingMovies();
+
+    const ref = scrollRef.current;
+    ref?.addEventListener('wheel', handleWheel, { passive: false });
+
+    return () => {
+      ref?.removeEventListener('wheel', handleWheel);
+    };
+  }, [category, lang, page]);
+
 
   return (
     <>
-      {/* Banner */}
-      {no===1 &&bannerShow && (
+      {no === 1 && bannerShow && (
         <div
           className="relative w-full h-[85vh] bg-cover bg-center flex items-end"
           style={{
             backgroundImage: `url(https://image.tmdb.org/t/p/original${bannerShow.backdrop_path})`,
           }}
         >
-          <div className="bg-gradient-to-t from-black/80 to-transparent absolute w-full h-full"></div>
-
+          <div className="bg-gradient-to-t from-black/80 to-transparent absolute w-full h-full" />
           <div className="relative z-10 p-8 text-white max-w-3xl">
-            <h1 className="text-2xl sm:text-5xl font-bold mb-4">{bannerShow.name}</h1>
+            <h1 className="text-2xl sm:text-5xl font-bold mb-4">{bannerShow.title}</h1>
             <p className="text-lg mb-6 line-clamp-2 sm:line-clamp-3">{bannerShow.overview}</p>
-
+            
             <div className="flex gap-4">
-             <Link to={`/player/${bannerShow.id}`}
+              <Link to={`/player/${bannerShow.id}`}
                 className="flex items-center gap-2 bg-white text-black px-3 sm:px-6 py-2 rounded-md font-semibold hover:bg-gray-300 transition">
                   <FaPlay className="text-xl" />
                   Play
@@ -114,11 +117,8 @@ const TvShowsList = ({ title, category, no, lang, children, page}: Props) => {
         </div>
       )}
 
-      {/* Horizontal Scroll List */}
-      <div className={'px-6 relative'}>
-        <h1 className="mb-4 text-2xl text-white font-bold">
-          {title ? title : "Popular TV Shows"}
-        </h1>
+      <div className="px-6 relative">
+        <h1 className="mb-4 text-2xl text-white font-bold">{title ?? "Popular on Netflix"}</h1>
 
         {/* Scroll Buttons */}
         <button
@@ -135,25 +135,21 @@ const TvShowsList = ({ title, category, no, lang, children, page}: Props) => {
           <FaAngleRight size={24} />
         </button>
 
-        {/* Scrollable Row */}
-        <div
-          ref={scrollRef}
-          className="overflow-x-auto scrollbar-hide scroll-smooth snap-x snap-mandatory focus:outline-none"
-        >
+        <div ref={scrollRef} className="overflow-x-auto scrollbar-hide scroll-smooth snap-x snap-mandatory focus:outline-none">
           <div className="flex gap-6 min-w-max pb-4">
-            {apiData.map((card, index) => (
+            {apiData.map((card) => (
               <Link
                 to={`/player/${card.id}`}
-                key={index}
+                key={card.id}
                 className="bg-[#141414] rounded-sm overflow-hidden shadow-md transition-transform duration-300 hover:scale-105 cursor-pointer w-[150px] md:w-[240px] relative"
               >
                 <img
                   src={`https://image.tmdb.org/t/p/w500/${card.backdrop_path}`}
-                  alt={card.name}
+                  alt={card.title}
                   className="w-full object-cover object-center"
                 />
                 <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/80 to-transparent text-white p-2">
-                  <h2 className="text-sm font-semibold truncate">{card.name}</h2>
+                  <h2 className="text-sm font-semibold truncate">{card.title}</h2>
                 </div>
               </Link>
             ))}
@@ -164,4 +160,4 @@ const TvShowsList = ({ title, category, no, lang, children, page}: Props) => {
   );
 };
 
-export default TvShowsList;
+export default TitleCard;

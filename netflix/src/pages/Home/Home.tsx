@@ -1,35 +1,43 @@
 import NavBar from "../../components/NavBar"
-import hero_banner from '../../assets/hero_banner.jpg'
-import hero_caption from '../../assets/hero_title.png'
-import play_icon from '../../assets/play_icon.png'
-import info_icon from '../../assets/info_icon.png'
-import TitleCard from "../../components/TitleCard"
 import Footer from "../../components/Footer"
+import TvShowsList from "../../components/TvShowsList"
+import MoviesList from "../../components/MoviesList"
+import { useState } from "react"
+import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io"
 
 const Home = () => {
+    const [page, setPage] = useState(1);
+    
+    const nextPage = () => setPage(prev => prev + 1);
+    const prevPage = () => setPage(prev => (prev > 1 ? prev - 1 : 1));
+  
+  
   return (
     <div>
       <NavBar/>
-      
-      <div className="relative w-full" style={{ maskImage: "linear-gradient(to right, transparent, black 75%)", WebkitMaskImage: "linear-gradient(to right, transparent, black 75%)" }}>
-        <img src={hero_banner} alt="" className="w-full object-cover"/>
-      </div>
+      <MoviesList category="popular"  title="Popular Movies" no={1} page={page}/>
+      <MoviesList title="Blockbuster Movie" category="top_rated" page={page}/>
+      <MoviesList title="Upcoming" category="upcoming" page={page}/>
+      <MoviesList title="Top Pics for you" category="now_playing" page={page}/>
+      <TvShowsList category="popular" page={page}/>
+      <TvShowsList category="top_rated" title="Top Rated" page={page}/>
+      <TvShowsList category="on_the_air" title="On the Air" page={page}/>
+      <TvShowsList category="airing_today" title="Airing Today" page={page}/>
 
-      <div className="absolute w-full pl-5 md:pl-[6%] top-10 md:top-20">
-        <img src={hero_caption} alt="" className="w-[30%] md:w-[40%] lg:w-[60%] xl:w-[90%]  max-w-[420px] mb-2 md:mb-[30px]"/>
-        <p className="max-w-[480px] text-base md:text-[17px] mb- sm:mb-[20px] line-clamp-2 sm:line-clamp-none">Discovering his ties to a secreat ancient order, a yound man living in modern Istanbul embarks on a quest to save tjhe city from an immortal enemy. </p>
-      <div className="flex gap-[10px]">
-        <button className="inline-flex items-center gap-2 text-[13px] sm:text-[15px] py-1 sm:py-2 px-4 sm:px-10 bg-white rounded-[4px] text-black font-bold cursor-pointer hover:bg-[#ffffffbf] active:scale-50 transition-all"><img src={play_icon} alt="" className="w-[25px]"/>Play</button>
-        <button className="inline-flex items-center gap-2 text-[13px] sm:text-[15px] py-1 sm:py-2 px-4 sm:px-10 bg-[#6d6d6eb3] rounded-[4px] text-white font-bold cursor-pointer hover:bg-[#6d6d6e66] active:scale-50 transition-all"><img src={info_icon} alt=""  className="w-[25px]"/>More Info</button>
-      </div>
-      </div>
-      
-      <TitleCard position="xl:mt-[-250px] lg:mt-[-170px] " category="popular"  />
-      <TitleCard position="" title="Blockbuster Movie" category="top_rated"/>
-      <TitleCard title="Only on Netflix" category="popular" page={2}/>
-      <TitleCard title="Upcoming" category="upcoming"/>
-      <TitleCard title="Top Pics for you" category="now_playing"/>
-
+      <div className="flex justify-between px-6 py-4">
+          <button onClick={prevPage} disabled={page === 1}
+            className="bg-gray-700 flex items-center text-white px-4 py-2 rounded hover:bg-gray-600 disabled:opacity-50">
+            <IoIosArrowBack/>
+            <p className="hidden sm:flex">Previous</p>
+            
+          </button>
+          <span className="text-white font-semibold text-lg">Page: {page}</span>
+          <button onClick={nextPage}
+            className="bg-gray-700 flex items-center text-white px-4 py-2 rounded hover:bg-gray-600">
+            <p className="hidden sm:flex">Next</p>
+            <IoIosArrowForward/>
+          </button>
+        </div>
       <Footer/>
     </div> 
 
